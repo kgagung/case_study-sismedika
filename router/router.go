@@ -20,11 +20,13 @@ func NewRouter() *chi.Mux {
 	)
 
 	// Rute untuk buku
-	router.Get("/books", handler.GetBooksHandler)
-	router.Post("/books", handler.CreateBookHandler)
-	router.Get("/books/{id}", handler.GetBookIDHandler)
-	router.Put("/books/{id}", handler.UpdateBookHandler)
-	router.Delete("/books/{id}", handler.DeleteBookHandler)
+	router.Route("/books", func(router chi.Router) {
+		router.Get("/", handler.GetBooksHandler)
+		router.Get("/{id}", handler.GetBookIDHandler)
+		router.Post("/", handler.CreateBookHandler)
+		router.Put("/{id}", handler.UpdateBookHandler)
+		router.Delete("/{id}", handler.DeleteBookHandler)
+	})
 
 	return router
 }

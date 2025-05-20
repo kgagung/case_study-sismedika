@@ -2,6 +2,7 @@ package handler
 
 import (
 	"Sismedika/model"
+	"Sismedika/utils"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -12,8 +13,7 @@ import (
 // GetBooksHandler mengembalikan daftar semua buku
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
 	books := model.GetBookStore().GetBooks()
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(books)
+	utils.JSONResponse(w, http.StatusOK, books)
 }
 
 // GetBookIDHandler mengembalikan buku berdasarkan ID
@@ -21,33 +21,30 @@ func GetBookIDHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		utils.JSONError(w, http.StatusBadRequest, "ID tidak valid")
 		return
 	}
 
 	book, found := model.GetBookStore().GetBookByID(id)
 	if !found {
-		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		utils.JSONError(w, http.StatusNotFound, "Buku tidak ditemukan")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(book)
+	utils.JSONResponse(w, http.StatusOK, book)
 }
 
 // CreateBookHandler menambahkan buku baru
 func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
 	var book model.Book
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
-		http.Error(w, "Gagal membaca data buku", http.StatusBadRequest)
+		utils.JSONError(w, http.StatusBadRequest, "Gagal membaca data buku")
 		return
 	}
 
 	model.GetBookStore().AddBook(book)
 
-	w.WriteHeader(http.StatusCreated)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(book)
+	utils.JSONResponse(w, http.StatusCreated, book)
 }
 
 // UpdateBookHandler memperbarui buku berdasarkan ID
@@ -55,23 +52,22 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		utils.JSONError(w, http.StatusBadRequest, "ID tidak valid")
 		return
 	}
 
 	var updatedBook model.Book
 	if err := json.NewDecoder(r.Body).Decode(&updatedBook); err != nil {
-		http.Error(w, "Gagal membaca data buku", http.StatusBadRequest)
+		utils.JSONError(w, http.StatusBadRequest, "Gagal membaca data buku")
 		return
 	}
 
 	if !model.GetBookStore().UpdateBook(id, updatedBook) {
-		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		utils.JSONError(w, http.StatusNotFound, "Buku tidak ditemukan")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(updatedBook)
+	utils.JSONResponse(w, http.StatusOK, updatedBook)
 }
 
 // DeleteBookHandler menghapus buku berdasarkan ID
@@ -79,14 +75,14 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		utils.JSONError(w, http.StatusBadRequest, "ID tidak valid")
 		return
 	}
 
 	if !model.GetBookStore().DeleteBook(id) {
-		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		utils.JSONError(w, http.StatusNotFound, "Buku tidak ditemukan")
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	utils.JSONResponse(w, http.StatusNoContent, map[string]string{"message": "Buku berhasil dihapus"})
 }

@@ -19,3 +19,10 @@
 2025/05/20 15:34:11 PUT /books/6 0s PostmanRuntime/7.44.0
 2025/05/20 15:34:18 GET /books/6 0s PostmanRuntime/7.44.0
 2025/05/20 15:34:21 DELETE /books/6 0s PostmanRuntime/7.44.0
+2025/05/20 16:23:15 GET /books 576µs PostmanRuntime/7.44.0
+2025/05/20 16:23:42 GET /books/2 550µs PostmanRuntime/7.44.0
+2025/05/20 16:23:51 POST /books 610.4µs PostmanRuntime/7.44.0
+2025/05/20 16:23:59 PUT /books 0s PostmanRuntime/7.44.0
+2025/05/20 16:24:08 PUT /books/6 0s PostmanRuntime/7.44.0
+2025/05/20 16:24:17 DELETE /books/6 0s PostmanRuntime/7.44.0
+2025/05/20 16:24:27 GET /books 0s PostmanRuntime/7.44.0
