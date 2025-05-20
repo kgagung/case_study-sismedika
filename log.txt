@@ -9,3 +9,13 @@
 2025/05/20 15:12:18 DELETE /books/6 0s PostmanRuntime/7.44.0
 2025/05/20 15:12:25 GET /books/6 0s PostmanRuntime/7.44.0
 2025/05/20 15:12:30 GET /books 0s PostmanRuntime/7.44.0
+2025/05/20 15:29:23 GET /books 0s PostmanRuntime/7.44.0
+2025/05/20 15:30:00 GET /books 0s Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36
+2025/05/20 15:30:17 GET /books/1 0s PostmanRuntime/7.44.0
+2025/05/20 15:33:30 GET /books 1.1784ms PostmanRuntime/7.44.0
+2025/05/20 15:33:37 GET /books/1 0s PostmanRuntime/7.44.0
+2025/05/20 15:33:45 POST /books 586.3µs PostmanRuntime/7.44.0
+2025/05/20 15:33:58 GET /books 512.9µs PostmanRuntime/7.44.0
+2025/05/20 15:34:11 PUT /books/6 0s PostmanRuntime/7.44.0
+2025/05/20 15:34:18 GET /books/6 0s PostmanRuntime/7.44.0
+2025/05/20 15:34:21 DELETE /books/6 0s PostmanRuntime/7.44.0

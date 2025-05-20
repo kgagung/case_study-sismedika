@@ -9,92 +9,84 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Simpan data buku dalam slice
-var books []model.Book = []model.Book{
-	{ID: 1, Title: "Book One", Author: "Handoyo", PublishedYear: 2020},
-	{ID: 2, Title: "Book Two", Author: "Albert Budi Christian", PublishedYear: 2021},
-	{ID: 3, Title: "Book Three", Author: "FX Padmanto Kristiana", PublishedYear: 2022},
-	{ID: 4, Title: "Book Four", Author: "Muhammad Febrian Ardiansyah", PublishedYear: 2023},
-	{ID: 5, Title: "Book Five", Author: "Heri Ju Abdin Sada", PublishedYear: 2024},
-}
-
 // GetBooksHandler mengembalikan daftar semua buku
 func GetBooksHandler(w http.ResponseWriter, r *http.Request) {
+	books := model.GetBookStore().GetBooks()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(books)
 }
 
-// CreateBookHandler menambahkan buku baru ke dalam daftar
-func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var newBook model.Book
-	if err := json.NewDecoder(r.Body).Decode(&newBook); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	newBook.ID = len(books) + 1
-	books = append(books, newBook)
-	json.NewEncoder(w).Encode(newBook)
-}
-
 // GetBookIDHandler mengembalikan buku berdasarkan ID
 func GetBookIDHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	id := chi.URLParam(r, "id")
-	bookID, err := strconv.Atoi(id)
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
 		return
 	}
-	for _, book := range books {
-		if book.ID == bookID {
-			json.NewEncoder(w).Encode(book)
-			return
-		}
+
+	book, found := model.GetBookStore().GetBookByID(id)
+	if !found {
+		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		return
 	}
-	http.Error(w, "Book not found", http.StatusNotFound)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(book)
 }
 
-// UpdateBookHandler memperbarui data buku berdasarkan ID
-func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	id := chi.URLParam(r, "id")
-	bookID, err := strconv.Atoi(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+// CreateBookHandler menambahkan buku baru
+func CreateBookHandler(w http.ResponseWriter, r *http.Request) {
+	var book model.Book
+	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
+		http.Error(w, "Gagal membaca data buku", http.StatusBadRequest)
 		return
 	}
+
+	model.GetBookStore().AddBook(book)
+
+	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(book)
+}
+
+// UpdateBookHandler memperbarui buku berdasarkan ID
+func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
+		return
+	}
+
 	var updatedBook model.Book
 	if err := json.NewDecoder(r.Body).Decode(&updatedBook); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Gagal membaca data buku", http.StatusBadRequest)
 		return
 	}
-	for i, book := range books {
-		if book.ID == bookID {
-			books[i] = updatedBook
-			books[i].ID = bookID
-			json.NewEncoder(w).Encode(books[i])
-			return
-		}
+
+	if !model.GetBookStore().UpdateBook(id, updatedBook) {
+		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		return
 	}
-	http.Error(w, "Book not found", http.StatusNotFound)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(updatedBook)
 }
 
 // DeleteBookHandler menghapus buku berdasarkan ID
 func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	id := chi.URLParam(r, "id")
-	bookID, err := strconv.Atoi(id)
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "ID tidak valid", http.StatusBadRequest)
 		return
 	}
-	for i, book := range books {
-		if book.ID == bookID {
-			books = append(books[:i], books[i+1:]...)
-			json.NewEncoder(w).Encode(books)
-			return
-		}
+
+	if !model.GetBookStore().DeleteBook(id) {
+		http.Error(w, "Buku tidak ditemukan", http.StatusNotFound)
+		return
 	}
-	http.Error(w, "Book not found", http.StatusNotFound)
+
+	w.WriteHeader(http.StatusNoContent)
 }
